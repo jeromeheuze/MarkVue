@@ -2,6 +2,8 @@
 
 > Beautiful markdown viewer for Windows, built for the AI era.
 
+![MarkVue-preview.png](MarkVue-preview.png)
+
 ## Why MarkVue?
 
 AI tools love markdown. Your computer doesn't. MarkVue fixes that.
@@ -12,6 +14,8 @@ AI tools love markdown. Your computer doesn't. MarkVue fixes that.
 - **Native**: Proper Windows app, not a browser extension
 
 ## Features
+
+![MarkVue-preview-2.png](MarkVue-preview-2.png)
 
 ✨ Clean, readable rendering  
 🎨 Dark & light themes  
@@ -71,7 +75,7 @@ MIT © Jerome
 ## Connect
 
 - 🔗 [LinkedIn](https://www.linkedin.com/in/jeromeheuze)
-- 📝 [Blog](https://spectrum3900.substack.com)
+- 🔗 [Website](https://jeromeheuze.com)
 - 🎮 [Other Projects](https://github.com/jeromeheuze)
 
 ---

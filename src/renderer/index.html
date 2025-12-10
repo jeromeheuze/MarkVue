@@ -38,6 +38,7 @@
           </div>
         </div>
         <button @click="toggleTheme()" x-text="theme === 'dark' ? '☀️' : '🌙'"></button>
+        <button @click="showAbout = true" class="about-button" title="About the Author">ℹ️</button>
         <span x-show="fileName" x-text="fileName" class="filename"></span>
       </div>
     </div>
@@ -49,6 +50,7 @@
       <h2>Welcome to MarkVue</h2>
       <p>Open a markdown file to get started</p>
       <p class="hint">File → Open (Ctrl+O)</p>
+      <button @click="showAbout = true" class="about-link">About the Author</button>
     </div>
     
     <article 
@@ -58,6 +60,54 @@
       x-ref="markdownContent"
     ></article>
   </main>
+
+  <!-- About Modal -->
+  <div 
+    x-show="showAbout" 
+    x-cloak
+    @click.away="showAbout = false"
+    @keydown.escape.window="showAbout = false"
+    class="modal-overlay"
+    x-transition
+  >
+    <div 
+      class="modal-content"
+      @click.stop
+      x-transition
+    >
+      <div class="modal-header">
+        <h2>About the Author</h2>
+        <button @click="showAbout = false" class="modal-close" title="Close (Esc)">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="author-info">
+          <h3>Jerome Heuze</h3>
+          <p class="author-description">
+            Developer passionate about creating tools that solve real problems. 
+            MarkVue was built to address the gap in markdown viewing on Windows, 
+            especially for users working with AI-generated content.
+          </p>
+          <div class="author-links">
+            <a href="https://www.linkedin.com/in/jeromeheuze" target="_blank" rel="noopener noreferrer" class="author-link">
+              LinkedIn
+            </a>
+            <a href="https://jeromeheuze.com" target="_blank" rel="noopener noreferrer" class="author-link">
+              Website
+            </a>
+            <a href="https://github.com/jeromeheuze" target="_blank" rel="noopener noreferrer" class="author-link">
+              GitHub
+            </a>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <p class="app-version">MarkVue v1.0.0</p>
+          <p class="app-description">
+            Beautiful markdown viewer for Windows, built for the AI era.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

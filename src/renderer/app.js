@@ -9,10 +9,15 @@ function markdownViewer() {
     currentMatchIndex: -1,
     matchCount: 0,
     originalContent: '',
+    showAbout: false,
+    zoomLevel: parseFloat(localStorage.getItem('zoomLevel')) || 1.0,
     
     init() {
       // Apply saved theme
       document.body.classList.add(`theme-${this.theme}`);
+      
+      // Apply saved zoom
+      this.applyZoom();
       
       // Configure marked
       marked.setOptions({
@@ -34,6 +39,27 @@ function markdownViewer() {
         this.renderMarkdown();
       });
       
+      // Listen for show about modal
+      window.electronAPI.onShowAbout(() => {
+        this.showAbout = true;
+      });
+      
+      // Listen for zoom commands from menu
+      window.electronAPI.onZoomIn(() => {
+        console.log('Zoom In received');
+        this.zoomIn();
+      });
+      
+      window.electronAPI.onZoomOut(() => {
+        console.log('Zoom Out received');
+        this.zoomOut();
+      });
+      
+      window.electronAPI.onZoomReset(() => {
+        console.log('Zoom Reset received');
+        this.zoomReset();
+      });
+      
       // Keyboard shortcuts
       document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
@@ -44,6 +70,60 @@ function markdownViewer() {
           }
         }
       });
+      
+      // Mouse wheel zoom with Ctrl key (only on main content)
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        mainElement.addEventListener('wheel', (e) => {
+          if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
+            e.preventDefault();
+            const delta = e.deltaY;
+            if (delta < 0) {
+              // Scroll up = zoom in
+              this.zoomIn();
+            } else if (delta > 0) {
+              // Scroll down = zoom out
+              this.zoomOut();
+            }
+          }
+        }, { passive: false });
+      }
+    },
+    
+    applyZoom() {
+      const mainElement = document.querySelector('main');
+      if (mainElement) {
+        console.log('Applying zoom:', this.zoomLevel);
+        // Reset font-size first
+        mainElement.style.fontSize = '';
+        // Use CSS zoom property for better rendering (browser handles subpixel rendering)
+        mainElement.style.zoom = this.zoomLevel;
+      } else {
+        console.error('Main element not found for zoom');
+      }
+    },
+    
+    zoomIn() {
+      console.log('zoomIn called, current level:', this.zoomLevel);
+      this.zoomLevel = Math.min(this.zoomLevel + 0.1, 3.0);
+      localStorage.setItem('zoomLevel', this.zoomLevel.toString());
+      this.applyZoom();
+      console.log('zoomIn new level:', this.zoomLevel);
+    },
+    
+    zoomOut() {
+      console.log('zoomOut called, current level:', this.zoomLevel);
+      this.zoomLevel = Math.max(this.zoomLevel - 0.1, 0.5);
+      localStorage.setItem('zoomLevel', this.zoomLevel.toString());
+      this.applyZoom();
+      console.log('zoomOut new level:', this.zoomLevel);
+    },
+    
+    zoomReset() {
+      console.log('zoomReset called');
+      this.zoomLevel = 1.0;
+      localStorage.setItem('zoomLevel', '1.0');
+      this.applyZoom();
     },
     
     renderMarkdown() {

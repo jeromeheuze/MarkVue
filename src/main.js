@@ -24,6 +24,17 @@ function createWindow() {
   // Create menu
   createMenu();
   
+  // Add F12 shortcut to toggle DevTools
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.key === 'F12') {
+      if (mainWindow.webContents.isDevToolsOpened()) {
+        mainWindow.webContents.closeDevTools();
+      } else {
+        mainWindow.webContents.openDevTools();
+      }
+    }
+  });
+  
   // Open file if one was queued before window was ready
   if (fileToOpen) {
     openFile(fileToOpen);
@@ -56,12 +67,44 @@ function createMenu() {
     {
       label: 'View',
       submenu: [
-        { role: 'reload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' }
+        {
+          label: 'Zoom In',
+          accelerator: 'CmdOrCtrl+Plus',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('zoom-in');
+            }
+          }
+        },
+        {
+          label: 'Zoom Out',
+          accelerator: 'CmdOrCtrl+-',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('zoom-out');
+            }
+          }
+        },
+        {
+          label: 'Reset Zoom',
+          accelerator: 'CmdOrCtrl+0',
+          click: () => {
+            if (mainWindow) {
+              mainWindow.webContents.send('zoom-reset');
+            }
+          }
+        }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About the Author',
+          click: () => {
+            mainWindow.webContents.send('show-about');
+          }
+        }
       ]
     }
   ];
@@ -115,4 +158,5 @@ ipcMain.handle('read-file', async (event, filePath) => {
     throw error;
   }
 });
+
 
