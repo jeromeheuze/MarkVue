@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MarkVue</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/github-dark.min.css">
+</head>
+<body x-data="markdownViewer()" x-init="init()">
+  
+  <!-- Header -->
+  <header>
+    <div class="header-content">
+      <h1>MarkVue</h1>
+      <div class="controls">
+        <!-- Search Bar -->
+        <div x-show="content" class="search-container">
+          <input 
+            type="text" 
+            x-model="searchQuery"
+            @input="performSearch()"
+            @keydown.escape="closeSearch()"
+            @keydown.enter.prevent="nextMatch()"
+            @keydown.shift.enter.prevent="previousMatch()"
+            placeholder="Search (Ctrl+F)"
+            class="search-input"
+            x-ref="searchInput"
+          >
+          <div x-show="searchQuery" class="search-results">
+            <span x-text="`${currentMatchIndex + 1} / ${matchCount}`"></span>
+            <button @click="previousMatch()" class="search-nav" title="Previous (Shift+Enter)">↑</button>
+            <button @click="nextMatch()" class="search-nav" title="Next (Enter)">↓</button>
+            <button @click="closeSearch()" class="search-close" title="Close (Esc)">×</button>
+          </div>
+        </div>
+        <button @click="toggleTheme()" x-text="theme === 'dark' ? '☀️' : '🌙'"></button>
+        <span x-show="fileName" x-text="fileName" class="filename"></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div x-show="!content" class="welcome">
+      <h2>Welcome to MarkVue</h2>
+      <p>Open a markdown file to get started</p>
+      <p class="hint">File → Open (Ctrl+O)</p>
+    </div>
+    
+    <article 
+      x-show="content" 
+      class="markdown-body"
+      x-html="renderedContent"
+      x-ref="markdownContent"
+    ></article>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
