@@ -26,8 +26,8 @@ MarkVue changes that.
 Built with Electron + Alpine.js. Open source on GitHub. Available now for download.
 
 **Check it out:**
-🔗 GitHub: https://github.com/jeromeheuze/markvue
-📦 Download: Check Releases section
+🔗 GitHub: https://github.com/jeromeheuze/MarkVue
+📦 Download: https://github.com/jeromeheuze/MarkVue/releases/tag/1.0.1
 
 **Perfect for:**
 ✅ Developers using AI coding tools
@@ -70,8 +70,8 @@ So I built **MarkVue** - a clean, fast markdown viewer designed specifically for
 This wasn't about building a startup. It was about solving a daily frustration. Sometimes the best projects solve the smallest problems.
 
 **Try It:**
-🔗 GitHub: https://github.com/jeromeheuze/markvue
-📦 Download: Available in Releases
+🔗 GitHub: https://github.com/jeromeheuze/MarkVue
+📦 Download: https://github.com/jeromeheuze/MarkVue/releases/tag/1.0.1
 
 Completely free, open source, no ads, no tracking. Just a tool that works.
 

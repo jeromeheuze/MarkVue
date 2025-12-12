@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 
 let mainWindow;
 let fileToOpen = null;
@@ -36,10 +37,12 @@ function createWindow() {
   });
   
   // Open file if one was queued before window was ready
-  if (fileToOpen) {
-    openFile(fileToOpen);
-    fileToOpen = null;
-  }
+  mainWindow.webContents.once('did-finish-load', () => {
+    if (fileToOpen) {
+      openFile(fileToOpen);
+      fileToOpen = null;
+    }
+  });
 }
 
 function createMenu() {
@@ -115,18 +118,36 @@ function createMenu() {
 
 async function openFile(filePath) {
   try {
+    // Ensure window is ready before sending file
+    if (!mainWindow || !mainWindow.webContents) {
+      fileToOpen = filePath;
+      return;
+    }
+    
     const content = await fs.readFile(filePath, 'utf-8');
-    mainWindow.webContents.send('file-opened', {
-      content,
-      path: filePath,
-      name: path.basename(filePath)
-    });
+    
+    // Wait for window to be fully loaded before sending
+    if (mainWindow.webContents.isLoading()) {
+      mainWindow.webContents.once('did-finish-load', () => {
+        mainWindow.webContents.send('file-opened', {
+          content,
+          path: filePath,
+          name: path.basename(filePath)
+        });
+      });
+    } else {
+      mainWindow.webContents.send('file-opened', {
+        content,
+        path: filePath,
+        name: path.basename(filePath)
+      });
+    }
   } catch (error) {
     console.error('Error reading file:', error);
   }
 }
 
-// Handle file opened from Windows Explorer
+// Handle file opened from Windows Explorer (macOS)
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
   if (mainWindow) {
@@ -136,7 +157,46 @@ app.on('open-file', (event, filePath) => {
   }
 });
 
-app.whenReady().then(createWindow);
+// Handle file opened from Windows Explorer (Windows - command line arguments)
+// This must be called before app.whenReady()
+app.on('second-instance', (event, commandLine, workingDirectory) => {
+  // Another instance tried to open a file
+  if (mainWindow) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+    
+    // Check for file path in command line arguments
+    const filePath = commandLine.find(arg => 
+      (arg.endsWith('.md') || arg.endsWith('.markdown')) && 
+      fsSync.existsSync(arg)
+    );
+    if (filePath) {
+      openFile(filePath);
+    }
+  }
+});
+
+// Prevent multiple instances on Windows
+const gotTheLock = app.requestSingleInstanceLock();
+
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.whenReady().then(() => {
+    createWindow();
+    
+    // Check for file path in command line arguments (Windows)
+    // Skip first two args (electron.exe and script path)
+    const filePath = process.argv.find(arg => 
+      (arg.endsWith('.md') || arg.endsWith('.markdown')) && 
+      fsSync.existsSync(arg)
+    );
+    
+    if (filePath) {
+      fileToOpen = filePath;
+    }
+  });
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
