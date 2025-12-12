@@ -1,3 +1,4 @@
+![hero-top.png](hero-top.png)
 # MarkVue
 
 > Beautiful markdown viewer for Windows, built for the AI era.
